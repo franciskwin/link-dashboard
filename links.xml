@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dashboard>
+
+    <category name="Development" color="development">
+        <link>
+            <title>React.js</title>
+            <description>React official website</description>
+            <url>https://react.dev/</url>
+        </link>
+        <link>
+            <title>Next.js</title>
+            <description>Next.js documentation</description>
+            <url>https://nextjs.org/</url>
+        </link>
+        <link>
+            <title>Node.js</title>
+            <description>Node.js official website</description>
+            <url>https://nodejs.org/</url>
+        </link>
+    </category>
+
+    <category name="Tools" color="tools">
+        <link>
+            <title>GitHub</title>
+            <description>Code repository and collaboration</description>
+            <url>https://github.com/</url>
+        </link>
+        <link>
+            <title>Docker</title>
+            <description>Container platform</description>
+            <url>https://www.docker.com/</url>
+        </link>
+        <link>
+            <title>Postman</title>
+            <description>API development platform</description>
+            <url>https://www.postman.com/</url>
+        </link>
+    </category>
+
+    <category name="Documentation" color="documentation">
+        <link>
+            <title>MDN</title>
+            <description>Web development documentation</description>
+            <url>https://developer.mozilla.org/</url>
+        </link>
+        <link>
+            <title>W3Schools</title>
+            <description>Web development tutorials</description>
+            <url>https://www.w3schools.com/</url>
+        </link>
+    </category>
+
+    <category name="Projects" color="project">
+        <link>
+            <title>Project Dashboard</title>
+            <description>Open project dashboard</description>
+            <url>https://example.com/project</url>
+        </link>
+        <link>
+            <title>Project Documentation</title>
+            <description>Project documentation</description>
+            <url>https://example.com/docs</url>
+        </link>
+    </category>
+
+</dashboard>

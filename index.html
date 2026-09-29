@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Link Dashboard</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f9;
+            color: #1f2937;
+        }
+        .header {
+            background: #111827;
+            color: #fff;
+            padding: 22px 30px;
+            text-align: center;
+        }
+        .header h1 { margin: 0; font-size: 26px; }
+        .header p { margin: 8px 0 0; color: #cbd5e1; }
+
+        .category-container {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 20px 30px;
+            background: #fff;
+            border-bottom: 1px solid #ddd;
+        }
+        .category-btn {
+            border: none;
+            padding: 12px 22px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            transition: .2s;
+        }
+        .category-btn:hover { transform: translateY(-2px); opacity: .9; }
+        .category-btn.active { box-shadow: 0 0 0 3px rgba(0,0,0,.15); }
+
+        .content { padding: 30px; }
+        .category-title { margin-bottom: 20px; }
+        .category-title h2 { margin: 0; font-size: 22px; }
+        .category-title span { color: #6b7280; font-size: 14px; }
+
+        .link-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+        }
+        .link-box {
+            min-height: 150px;
+            padding: 22px;
+            border-radius: 12px;
+            color: #fff;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 5px 15px rgba(0,0,0,.12);
+            transition: transform .2s, box-shadow .2s;
+        }
+        .link-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,.18);
+        }
+        .link-box h3 { margin: 0 0 10px; font-size: 18px; }
+        .link-box p { margin: 0; font-size: 13px; opacity: .9; }
+        .arrow { text-align: right; font-size: 22px; }
+
+        .category-development { background: #2563eb; }
+        .category-tools { background: #7c3aed; }
+        .category-documentation { background: #059669; }
+        .category-project { background: #ea580c; }
+        .category-other { background: #475569; }
+
+        .empty {
+            padding: 50px;
+            text-align: center;
+            color: #6b7280;
+            background: #fff;
+            border-radius: 12px;
+        }
+        .error {
+            padding: 20px;
+            background: #fee2e2;
+            color: #991b1b;
+            border-radius: 10px;
+        }
+        @media (max-width: 600px) {
+            .category-container { padding: 15px; }
+            .content { padding: 20px 15px; }
+            .link-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>My Link Dashboard</h1>
+        <p>Select a category to view available links</p>
+    </header>
+
+    <div id="categoryContainer" class="category-container"></div>
+
+    <main class="content">
+        <div class="category-title">
+            <h2 id="categoryTitle">Select a Category</h2>
+            <span id="categoryCount"></span>
+        </div>
+        <div id="linkGrid" class="link-grid">
+            <div class="empty">Loading links...</div>
+        </div>
+    </main>
+
+    <script>
+        let categories = {};
+
+        async function loadXML() {
+            try {
+                const response = await fetch("links.xml");
+                if (!response.ok) throw new Error("Unable to load links.xml");
+
+                const xmlText = await response.text();
+                const parser = new DOMParser();
+                const xml = parser.parseFromString(xmlText, "application/xml");
+
+                const parserError = xml.querySelector("parsererror");
+                if (parserError) throw new Error("Invalid XML format");
+
+                parseXML(xml);
+            } catch (error) {
+                console.error(error);
+                document.getElementById("linkGrid").innerHTML =
+                    '<div class="error">Unable to load links.xml. Run this project using a local web server.</div>';
+            }
+        }
+
+        function parseXML(xml) {
+            xml.querySelectorAll("category").forEach(category => {
+                const name = category.getAttribute("name") || "Other";
+                const color = category.getAttribute("color") || "other";
+
+                const links = [];
+                category.querySelectorAll("link").forEach(link => {
+                    links.push({
+                        title: link.querySelector("title")?.textContent.trim() || "Untitled",
+                        description: link.querySelector("description")?.textContent.trim() || "",
+                        url: link.querySelector("url")?.textContent.trim() || "#"
+                    });
+                });
+
+                categories[name] = { color, links };
+            });
+
+            createCategoryButtons();
+
+            const firstCategory = Object.keys(categories)[0];
+            if (firstCategory) showCategory(firstCategory);
+        }
+
+        function createCategoryButtons() {
+            const container = document.getElementById("categoryContainer");
+            container.innerHTML = "";
+
+            Object.keys(categories).forEach(categoryName => {
+                const button = document.createElement("button");
+                button.className = `category-btn category-${categories[categoryName].color}`;
+                button.textContent = categoryName;
+                button.addEventListener("click", () => showCategory(categoryName));
+                container.appendChild(button);
+            });
+        }
+
+        function showCategory(categoryName) {
+            const category = categories[categoryName];
+            const grid = document.getElementById("linkGrid");
+
+            document.getElementById("categoryTitle").textContent = categoryName;
+            document.getElementById("categoryCount").textContent =
+                `${category.links.length} link${category.links.length === 1 ? "" : "s"}`;
+
+            document.querySelectorAll(".category-btn").forEach(button => {
+                button.classList.toggle("active", button.textContent === categoryName);
+            });
+
+            grid.innerHTML = "";
+
+            if (!category.links.length) {
+                grid.innerHTML = '<div class="empty">No links available in this category.</div>';
+                return;
+            }
+
+            category.links.forEach(link => {
+                const box = document.createElement("a");
+                box.className = `link-box category-${category.color}`;
+                box.href = link.url;
+                box.target = "_blank";
+                box.rel = "noopener noreferrer";
+
+                box.innerHTML = `
+                    <div>
+                        <h3>${escapeHTML(link.title)}</h3>
+                        <p>${escapeHTML(link.description)}</p>
+                    </div>
+                    <div class="arrow">→</div>
+                `;
+
+                grid.appendChild(box);
+            });
+        }
+
+        function escapeHTML(value) {
+            const div = document.createElement("div");
+            div.textContent = value;
+            return div.innerHTML;
+        }
+
+        loadXML();
+    </script>
+</body>
+</html>
