@@ -3,122 +3,383 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Link Dashboard</title>
+    <title>Link Dashboard</title>
     <style>
         * { box-sizing: border-box; }
         body {
             margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background: #f4f6f9;
             color: #1f2937;
         }
+
+        /* Header */
         .header {
             background: #111827;
             color: #fff;
-            padding: 22px 30px;
-            text-align: center;
+            padding: 24px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
         }
-        .header h1 { margin: 0; font-size: 26px; }
-        .header p { margin: 8px 0 0; color: #cbd5e1; }
+        .header-title h1 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+        .header-title p { margin: 4px 0 0; color: #9ca3af; font-size: 14px; }
+        .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
+        /* Buttons */
+        .btn {
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .btn-primary { background: #2563eb; color: #fff; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-secondary { background: #374151; color: #fff; }
+        .btn-secondary:hover { background: #4b5563; }
+        .btn-success { background: #059669; color: #fff; }
+        .btn-success:hover { background: #047857; }
+        .btn-outline { background: transparent; border: 1px solid #d1d5db; color: #374151; }
+        .btn-outline:hover { background: #f3f4f6; }
+        .btn-danger { background: #ef4444; color: #fff; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
+
+        /* Category Bar */
         .category-container {
             display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            padding: 20px 30px;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 30px;
             background: #fff;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #e5e7eb;
+            overflow-x: auto;
         }
         .category-btn {
             border: none;
-            padding: 12px 22px;
+            padding: 10px 20px;
             border-radius: 8px;
             cursor: pointer;
             color: #fff;
             font-size: 14px;
             font-weight: 600;
-            transition: .2s;
+            white-space: nowrap;
+            transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s;
         }
-        .category-btn:hover { transform: translateY(-2px); opacity: .9; }
-        .category-btn.active { box-shadow: 0 0 0 3px rgba(0,0,0,.15); }
+        .category-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+        .category-btn.active { box-shadow: 0 0 0 3px rgba(0,0,0,0.25); transform: translateY(-1px); }
 
-        .content { padding: 30px; }
-        .category-title { margin-bottom: 20px; }
-        .category-title h2 { margin: 0; font-size: 22px; }
-        .category-title span { color: #6b7280; font-size: 14px; }
+        /* Main Content */
+        .content { padding: 30px; max-width: 1400px; margin: 0 auto; }
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .category-title { display: flex; align-items: baseline; gap: 12px; }
+        .category-title h2 { margin: 0; font-size: 24px; font-weight: 700; color: #111827; }
+        .category-title span { color: #6b7280; font-size: 14px; font-weight: 500; }
+        .category-actions { display: flex; gap: 8px; }
 
+        /* Grid & Cards */
         .link-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
         }
         .link-box {
-            min-height: 150px;
+            position: relative;
+            min-height: 160px;
             padding: 22px;
-            border-radius: 12px;
+            border-radius: 14px;
             color: #fff;
-            cursor: pointer;
             text-decoration: none;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            box-shadow: 0 5px 15px rgba(0,0,0,.12);
-            transition: transform .2s, box-shadow .2s;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
         .link-box:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,.18);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
         }
-        .link-box h3 { margin: 0 0 10px; font-size: 18px; }
-        .link-box p { margin: 0; font-size: 13px; opacity: .9; }
-        .arrow { text-align: right; font-size: 22px; }
+        .link-box-content h3 { margin: 0 0 8px; font-size: 18px; font-weight: 700; padding-right: 50px; word-break: break-word; }
+        .link-box-content p { margin: 0; font-size: 13px; opacity: 0.9; line-height: 1.5; word-break: break-word; }
+        
+        .link-box-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 16px;
+        }
+        .link-url { font-size: 11px; opacity: 0.75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+        .arrow { font-size: 20px; font-weight: bold; transition: transform 0.2s; }
+        .link-box:hover .arrow { transform: translateX(4px); }
 
-        .category-development { background: #2563eb; }
-        .category-tools { background: #7c3aed; }
-        .category-documentation { background: #059669; }
-        .category-project { background: #ea580c; }
-        .category-other { background: #475569; }
+        /* Card Controls */
+        .card-actions {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            display: flex;
+            gap: 6px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .link-box:hover .card-actions { opacity: 1; }
+        .icon-btn {
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+        .icon-btn:hover { background: rgba(0, 0, 0, 0.6); }
 
-        .empty {
-            padding: 50px;
+        /* Category Color Themes */
+        .category-development { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+        .category-tools { background: linear-gradient(135deg, #7c3aed, #6d28d9); }
+        .category-documentation { background: linear-gradient(135deg, #059669, #047857); }
+        .category-project { background: linear-gradient(135deg, #ea580c, #c2410c); }
+        .category-cloud { background: linear-gradient(135deg, #0284c7, #0369a1); }
+        .category-ai { background: linear-gradient(135deg, #db2777, #be185d); }
+        .category-design { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .category-other { background: linear-gradient(135deg, #475569, #334155); }
+
+        /* Empty & Error State */
+        .empty, .error {
+            padding: 50px 20px;
             text-align: center;
-            color: #6b7280;
-            background: #fff;
             border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
-        .error {
-            padding: 20px;
-            background: #fee2e2;
-            color: #991b1b;
-            border-radius: 10px;
+        .empty { color: #6b7280; }
+        .error { background: #fee2e2; color: #991b1b; }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(17, 24, 39, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
         }
-        @media (max-width: 600px) {
-            .category-container { padding: 15px; }
-            .content { padding: 20px 15px; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal {
+            background: #fff;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 520px;
+            padding: 28px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+            transform: translateY(20px);
+            transition: transform 0.25s ease;
+        }
+        .modal-overlay.active .modal { transform: translateY(0); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h3 { margin: 0; font-size: 20px; font-weight: 700; }
+        .close-btn { background: none; border: none; font-size: 22px; cursor: pointer; color: #9ca3af; }
+        .close-btn:hover { color: #111827; }
+
+        /* Forms */
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-control:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
+        textarea.form-control { resize: vertical; min-height: 80px; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+
+        /* XML Code View */
+        .xml-preview {
+            background: #1e293b;
+            color: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 13px;
+            max-height: 280px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        @media (max-width: 640px) {
+            .header { padding: 18px 20px; flex-direction: column; align-items: flex-start; }
+            .category-container { padding: 12px 20px; }
+            .content { padding: 20px; }
             .link-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <header class="header">
-        <h1>My Link Dashboard</h1>
-        <p>Select a category to view available links</p>
+        <div class="header-title">
+            <h1>Link Dashboard</h1>
+            <p>Select a category or add new links and categories</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-primary" onclick="openCategoryModal()">+ Add Category</button>
+            <button class="btn btn-success" onclick="openLinkModal()">+ Add Link</button>
+            <button class="btn btn-secondary" onclick="openExportModal()">📥 Export XML</button>
+            <button class="btn btn-outline" style="color: #fff; border-color: #4b5563;" onclick="resetToDefaultXML()">🔄 Reset XML</button>
+        </div>
     </header>
 
     <div id="categoryContainer" class="category-container"></div>
 
     <main class="content">
-        <div class="category-title">
-            <h2 id="categoryTitle">Select a Category</h2>
-            <span id="categoryCount"></span>
+        <div class="category-header">
+            <div class="category-title">
+                <h2 id="categoryTitle">Select a Category</h2>
+                <span id="categoryCount"></span>
+            </div>
+            <div class="category-actions" id="categoryActions"></div>
         </div>
         <div id="linkGrid" class="link-grid">
             <div class="empty">Loading links...</div>
         </div>
     </main>
 
+    <!-- Add/Edit Category Modal -->
+    <div id="categoryModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="categoryModalTitle">Add Category</h3>
+                <button class="close-btn" onclick="closeModal('categoryModal')">&times;</button>
+            </div>
+            <form id="categoryForm" onsubmit="handleSaveCategory(event)">
+                <input type="hidden" id="editCategoryOriginalName">
+                <div class="form-group">
+                    <label for="categoryNameInput">Category Name</label>
+                    <input type="text" id="categoryNameInput" class="form-control" placeholder="e.g. Cloud Services" required>
+                </div>
+                <div class="form-group">
+                    <label for="categoryColorInput">Theme Color</label>
+                    <select id="categoryColorInput" class="form-control">
+                        <option value="development">Development (Blue)</option>
+                        <option value="tools">Tools (Purple)</option>
+                        <option value="documentation">Documentation (Green)</option>
+                        <option value="project">Projects (Orange)</option>
+                        <option value="cloud">Cloud (Cyan)</option>
+                        <option value="ai">AI / ML (Pink)</option>
+                        <option value="design">Design (Violet)</option>
+                        <option value="other">Other (Slate)</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('categoryModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Link Modal -->
+    <div id="linkModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="linkModalTitle">Add Link</h3>
+                <button class="close-btn" onclick="closeModal('linkModal')">&times;</button>
+            </div>
+            <form id="linkForm" onsubmit="handleSaveLink(event)">
+                <input type="hidden" id="editLinkCategory">
+                <input type="hidden" id="editLinkIndex">
+                <div class="form-group">
+                    <label for="linkCategorySelect">Category</label>
+                    <select id="linkCategorySelect" class="form-control" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="linkTitleInput">Title</label>
+                    <input type="text" id="linkTitleInput" class="form-control" placeholder="e.g. GitHub" required>
+                </div>
+                <div class="form-group">
+                    <label for="linkDescriptionInput">Description</label>
+                    <textarea id="linkDescriptionInput" class="form-control" placeholder="Brief summary of the link"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="linkUrlInput">URL</label>
+                    <input type="url" id="linkUrlInput" class="form-control" placeholder="https://example.com" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('linkModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Link</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Export XML Modal -->
+    <div id="exportModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Export links.xml</h3>
+                <button class="close-btn" onclick="closeModal('exportModal')">&times;</button>
+            </div>
+            <p style="font-size: 14px; color: #4b5563; margin-top: 0;">
+                Copy or download this generated XML content to update your project's <code>links.xml</code> file.
+            </p>
+            <div id="xmlPreview" class="xml-preview"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="copyXMLToClipboard()">Copy to Clipboard</button>
+                <button type="button" class="btn btn-primary" onclick="downloadXMLFile()">Download links.xml</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let categories = {};
+        let activeCategoryName = "";
+
+        const LOCAL_STORAGE_KEY = "link_dashboard_data";
+
+        async function initDashboard() {
+            const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (savedData) {
+                try {
+                    categories = JSON.parse(savedData);
+                    renderDashboard();
+                    return;
+                } catch (e) {
+                    console.warn("Failed to parse local storage data, loading XML default.");
+                }
+            }
+            await loadXML();
+        }
 
         async function loadXML() {
             try {
@@ -141,6 +402,7 @@
         }
 
         function parseXML(xml) {
+            categories = {};
             xml.querySelectorAll("category").forEach(category => {
                 const name = category.getAttribute("name") || "Other";
                 const color = category.getAttribute("color") || "other";
@@ -157,10 +419,29 @@
                 categories[name] = { color, links };
             });
 
-            createCategoryButtons();
+            saveToLocalStorage();
+            renderDashboard();
+        }
 
-            const firstCategory = Object.keys(categories)[0];
-            if (firstCategory) showCategory(firstCategory);
+        function saveToLocalStorage() {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(categories));
+        }
+
+        function renderDashboard() {
+            createCategoryButtons();
+            const keys = Object.keys(categories);
+            if (keys.length > 0) {
+                if (!activeCategoryName || !categories[activeCategoryName]) {
+                    activeCategoryName = keys[0];
+                }
+                showCategory(activeCategoryName);
+            } else {
+                activeCategoryName = "";
+                document.getElementById("categoryTitle").textContent = "No Categories Available";
+                document.getElementById("categoryCount").textContent = "";
+                document.getElementById("linkGrid").innerHTML = '<div class="empty">No categories exist yet. Click "+ Add Category" above to create one.</div>';
+                document.getElementById("categoryActions").innerHTML = "";
+            }
         }
 
         function createCategoryButtons() {
@@ -169,7 +450,7 @@
 
             Object.keys(categories).forEach(categoryName => {
                 const button = document.createElement("button");
-                button.className = `category-btn category-${categories[categoryName].color}`;
+                button.className = `category-btn category-${categories[categoryName].color || 'other'}`;
                 button.textContent = categoryName;
                 button.addEventListener("click", () => showCategory(categoryName));
                 container.appendChild(button);
@@ -177,12 +458,20 @@
         }
 
         function showCategory(categoryName) {
+            activeCategoryName = categoryName;
             const category = categories[categoryName];
             const grid = document.getElementById("linkGrid");
+            if (!category) return;
 
             document.getElementById("categoryTitle").textContent = categoryName;
             document.getElementById("categoryCount").textContent =
                 `${category.links.length} link${category.links.length === 1 ? "" : "s"}`;
+
+            const actionsDiv = document.getElementById("categoryActions");
+            actionsDiv.innerHTML = `
+                <button class="btn btn-outline btn-sm" onclick="openCategoryModal('${escapeHTML(categoryName)}')">✏️ Edit Category</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteCategory('${escapeHTML(categoryName)}')">🗑️ Delete Category</button>
+            `;
 
             document.querySelectorAll(".category-btn").forEach(button => {
                 button.classList.toggle("active", button.textContent === categoryName);
@@ -191,36 +480,250 @@
             grid.innerHTML = "";
 
             if (!category.links.length) {
-                grid.innerHTML = '<div class="empty">No links available in this category.</div>';
+                grid.innerHTML = '<div class="empty">No links available in this category. Click "+ Add Link" to add one!</div>';
                 return;
             }
 
-            category.links.forEach(link => {
+            category.links.forEach((link, index) => {
                 const box = document.createElement("a");
-                box.className = `link-box category-${category.color}`;
+                box.className = `link-box category-${category.color || 'other'}`;
                 box.href = link.url;
                 box.target = "_blank";
                 box.rel = "noopener noreferrer";
 
+                let domain = "";
+                try {
+                    domain = new URL(link.url).hostname;
+                } catch(e) {
+                    domain = link.url;
+                }
+
                 box.innerHTML = `
-                    <div>
+                    <div class="card-actions">
+                        <button class="icon-btn" title="Edit Link" onclick="event.preventDefault(); event.stopPropagation(); openLinkModal('${escapeHTML(categoryName)}', ${index})">✏️</button>
+                        <button class="icon-btn" title="Delete Link" onclick="event.preventDefault(); event.stopPropagation(); deleteLink('${escapeHTML(categoryName)}', ${index})">🗑️</button>
+                    </div>
+                    <div class="link-box-content">
                         <h3>${escapeHTML(link.title)}</h3>
                         <p>${escapeHTML(link.description)}</p>
                     </div>
-                    <div class="arrow">→</div>
+                    <div class="link-box-footer">
+                        <span class="link-url" title="${escapeHTML(link.url)}">${escapeHTML(domain)}</span>
+                        <div class="arrow">→</div>
+                    </div>
                 `;
 
                 grid.appendChild(box);
             });
         }
 
+        /* Modals Management */
+        function openModal(id) {
+            document.getElementById(id).classList.add("active");
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove("active");
+        }
+
+        /* Category Modal Actions */
+        function openCategoryModal(categoryName = null) {
+            const isEdit = !!categoryName;
+            document.getElementById("categoryModalTitle").textContent = isEdit ? "Edit Category" : "Add Category";
+            document.getElementById("editCategoryOriginalName").value = categoryName || "";
+            document.getElementById("categoryNameInput").value = categoryName || "";
+            document.getElementById("categoryColorInput").value = isEdit ? (categories[categoryName]?.color || "development") : "development";
+            openModal("categoryModal");
+        }
+
+        function handleSaveCategory(e) {
+            e.preventDefault();
+            const originalName = document.getElementById("editCategoryOriginalName").value.trim();
+            const newName = document.getElementById("categoryNameInput").value.trim();
+            const color = document.getElementById("categoryColorInput").value;
+
+            if (!newName) return;
+
+            if (originalName && originalName !== newName) {
+                const existingLinks = categories[originalName]?.links || [];
+                delete categories[originalName];
+                categories[newName] = { color, links: existingLinks };
+                activeCategoryName = newName;
+            } else if (originalName) {
+                categories[originalName].color = color;
+            } else {
+                if (categories[newName]) {
+                    alert("A category with this name already exists.");
+                    return;
+                }
+                categories[newName] = { color, links: [] };
+                activeCategoryName = newName;
+            }
+
+            saveToLocalStorage();
+            renderDashboard();
+            closeModal("categoryModal");
+        }
+
+        function deleteCategory(categoryName) {
+            if (confirm(`Are you sure you want to delete category "${categoryName}" and all its links?`)) {
+                delete categories[categoryName];
+                activeCategoryName = "";
+                saveToLocalStorage();
+                renderDashboard();
+            }
+        }
+
+        /* Link Modal Actions */
+        function openLinkModal(categoryName = null, linkIndex = null) {
+            const select = document.getElementById("linkCategorySelect");
+            select.innerHTML = "";
+            
+            const categoryNames = Object.keys(categories);
+            if (categoryNames.length === 0) {
+                alert("Please create a category first before adding links.");
+                openCategoryModal();
+                return;
+            }
+
+            categoryNames.forEach(name => {
+                const opt = document.createElement("option");
+                opt.value = name;
+                opt.textContent = name;
+                select.appendChild(opt);
+            });
+
+            const isEdit = categoryName !== null && linkIndex !== null;
+            document.getElementById("linkModalTitle").textContent = isEdit ? "Edit Link" : "Add Link";
+            document.getElementById("editLinkCategory").value = isEdit ? categoryName : "";
+            document.getElementById("editLinkIndex").value = isEdit ? linkIndex : "";
+
+            if (isEdit) {
+                const link = categories[categoryName].links[linkIndex];
+                select.value = categoryName;
+                document.getElementById("linkTitleInput").value = link.title;
+                document.getElementById("linkDescriptionInput").value = link.description;
+                document.getElementById("linkUrlInput").value = link.url;
+            } else {
+                select.value = activeCategoryName && categories[activeCategoryName] ? activeCategoryName : categoryNames[0];
+                document.getElementById("linkTitleInput").value = "";
+                document.getElementById("linkDescriptionInput").value = "";
+                document.getElementById("linkUrlInput").value = "https://";
+            }
+
+            openModal("linkModal");
+        }
+
+        function handleSaveLink(e) {
+            e.preventDefault();
+            const targetCategory = document.getElementById("linkCategorySelect").value;
+            const title = document.getElementById("linkTitleInput").value.trim();
+            const description = document.getElementById("linkDescriptionInput").value.trim();
+            const url = document.getElementById("linkUrlInput").value.trim();
+
+            const origCategory = document.getElementById("editLinkCategory").value;
+            const origIndexStr = document.getElementById("editLinkIndex").value;
+
+            if (!title || !url || !targetCategory) return;
+
+            const newLink = { title, description, url };
+
+            if (origCategory !== "" && origIndexStr !== "") {
+                const origIndex = parseInt(origIndexStr, 10);
+                if (origCategory === targetCategory) {
+                    categories[targetCategory].links[origIndex] = newLink;
+                } else {
+                    categories[origCategory].links.splice(origIndex, 1);
+                    categories[targetCategory].links.push(newLink);
+                }
+            } else {
+                categories[targetCategory].links.push(newLink);
+            }
+
+            activeCategoryName = targetCategory;
+            saveToLocalStorage();
+            renderDashboard();
+            closeModal("linkModal");
+        }
+
+        function deleteLink(categoryName, linkIndex) {
+            if (confirm("Are you sure you want to delete this link?")) {
+                categories[categoryName].links.splice(linkIndex, 1);
+                saveToLocalStorage();
+                renderDashboard();
+            }
+        }
+
+        /* XML Generator & Exporter */
+        function generateXMLString() {
+            let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<dashboard>\n\n';
+            Object.keys(categories).forEach(catName => {
+                const cat = categories[catName];
+                xml += `    <category name="${escapeXML(catName)}" color="${escapeXML(cat.color || 'other')}">\n`;
+                cat.links.forEach(link => {
+                    xml += '        <link>\n';
+                    xml += `            <title>${escapeXML(link.title)}</title>\n`;
+                    xml += `            <description>${escapeXML(link.description)}</description>\n`;
+                    xml += `            <url>${escapeXML(link.url)}</url>\n`;
+                    xml += '        </link>\n';
+                });
+                xml += '    </category>\n\n';
+            });
+            xml += '</dashboard>';
+            return xml;
+        }
+
+        function openExportModal() {
+            const xmlStr = generateXMLString();
+            document.getElementById("xmlPreview").textContent = xmlStr;
+            openModal("exportModal");
+        }
+
+        function copyXMLToClipboard() {
+            const xmlStr = generateXMLString();
+            navigator.clipboard.writeText(xmlStr).then(() => {
+                alert("XML copied to clipboard!");
+            }).catch(() => {
+                alert("Failed to copy automatically. You can copy it manually from the preview window.");
+            });
+        }
+
+        function downloadXMLFile() {
+            const xmlStr = generateXMLString();
+            const blob = new Blob([xmlStr], { type: "application/xml" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "links.xml";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function resetToDefaultXML() {
+            if (confirm("This will reset all your custom categories and links back to the original links.xml file. Proceed?")) {
+                localStorage.removeItem(LOCAL_STORAGE_KEY);
+                loadXML();
+            }
+        }
+
         function escapeHTML(value) {
+            if (!value) return "";
             const div = document.createElement("div");
             div.textContent = value;
             return div.innerHTML;
         }
 
-        loadXML();
+        function escapeXML(value) {
+            if (!value) return "";
+            return value.replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&apos;');
+        }
+
+        initDashboard();
     </script>
 </body>
 </html>
