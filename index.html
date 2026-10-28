@@ -238,6 +238,117 @@
             word-break: break-all;
         }
 
+        /* Upload Component */
+        .upload-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 8px;
+        }
+        .upload-tab-btn {
+            background: none;
+            border: none;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #6b7280;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .upload-tab-btn.active {
+            background: #e0e7ff;
+            color: #2563eb;
+        }
+        .upload-dropzone {
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 28px 16px;
+            text-align: center;
+            cursor: pointer;
+            background: #f9fafb;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .upload-dropzone:hover, .upload-dropzone.dragover {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+        .upload-dropzone .dropzone-icon {
+            font-size: 36px;
+            margin-bottom: 6px;
+        }
+        .upload-dropzone .dropzone-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin: 0 0 4px;
+        }
+        .upload-dropzone .dropzone-subtext {
+            font-size: 12px;
+            color: #6b7280;
+            margin: 0;
+        }
+        .file-info-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        .import-options {
+            margin-top: 14px;
+            padding: 12px 14px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+        .import-options-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #475569;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #334155;
+            cursor: pointer;
+            margin-bottom: 6px;
+        }
+        .radio-label:last-child {
+            margin-bottom: 0;
+        }
+        .status-msg {
+            margin-top: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            display: none;
+        }
+        .status-msg.error {
+            display: block;
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        .status-msg.success {
+            display: block;
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
         @media (max-width: 640px) {
             .header { padding: 18px 20px; flex-direction: column; align-items: flex-start; }
             .category-container { padding: 12px 20px; }
@@ -255,6 +366,7 @@
         <div class="header-actions">
             <button class="btn btn-primary" onclick="openCategoryModal()">+ Add Category</button>
             <button class="btn btn-success" onclick="openLinkModal()">+ Add Link</button>
+            <button class="btn btn-secondary" onclick="openUploadModal()">📤 Upload XML</button>
             <button class="btn btn-secondary" onclick="openExportModal()">📥 Export XML</button>
             <button class="btn btn-outline" style="color: #fff; border-color: #4b5563;" onclick="resetToDefaultXML()">🔄 Reset XML</button>
         </div>
@@ -343,6 +455,59 @@
         </div>
     </div>
 
+    <!-- Upload XML Modal -->
+    <div id="uploadModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Upload / Import XML</h3>
+                <button class="close-btn" onclick="closeModal('uploadModal')">&times;</button>
+            </div>
+            <p style="font-size: 14px; color: #4b5563; margin-top: 0; margin-bottom: 14px;">
+                Upload a <code>links.xml</code> file or paste XML markup to populate your categories and links.
+            </p>
+
+            <div class="upload-tabs">
+                <button type="button" class="upload-tab-btn active" id="tabUploadFileBtn" onclick="switchUploadTab('file')">📁 File Upload</button>
+                <button type="button" class="upload-tab-btn" id="tabPasteXmlBtn" onclick="switchUploadTab('paste')">📝 Paste XML</button>
+            </div>
+
+            <!-- Tab 1: File Upload -->
+            <div id="uploadFileSection">
+                <div class="upload-dropzone" id="dropZone" onclick="triggerFileInput()">
+                    <input type="file" id="xmlFileInput" accept=".xml,text/xml" style="display:none" onchange="handleFileSelected(event)">
+                    <div class="dropzone-icon">📤</div>
+                    <div class="dropzone-text">Click to choose or drag & drop an XML file</div>
+                    <div class="dropzone-subtext">Supports valid .xml files (e.g. links.xml)</div>
+                    <div id="fileSelectedBadge" class="file-info-badge" style="display:none;"></div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Paste XML -->
+            <div id="uploadPasteSection" style="display: none;">
+                <textarea id="xmlPasteInput" class="form-control" style="font-family: monospace; font-size: 12px; height: 150px;" placeholder="Paste <?xml ...> <dashboard>...</dashboard> markup here..." oninput="handlePasteInput()"></textarea>
+            </div>
+
+            <div class="import-options">
+                <div class="import-options-title">Import Mode</div>
+                <label class="radio-label">
+                    <input type="radio" name="importMode" value="replace" checked>
+                    <span><strong>Replace:</strong> Overwrite all existing categories and links</span>
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="importMode" value="merge">
+                    <span><strong>Merge:</strong> Add new categories and append non-duplicate links</span>
+                </label>
+            </div>
+
+            <div id="uploadStatusMsg" class="status-msg"></div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeModal('uploadModal')">Cancel</button>
+                <button type="button" class="btn btn-primary" id="applyImportBtn" onclick="applyUploadedXML()" disabled>Import XML</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Export XML Modal -->
     <div id="exportModal" class="modal-overlay">
         <div class="modal">
@@ -368,6 +533,7 @@
         const LOCAL_STORAGE_KEY = "link_dashboard_data";
 
         async function initDashboard() {
+            setupDropZone();
             const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
             if (savedData) {
                 try {
@@ -381,31 +547,24 @@
             await loadXML();
         }
 
-        async function loadXML() {
-            try {
-                const response = await fetch("links.xml");
-                if (!response.ok) throw new Error("Unable to load links.xml");
-
-                const xmlText = await response.text();
-                const parser = new DOMParser();
-                const xml = parser.parseFromString(xmlText, "application/xml");
-
-                const parserError = xml.querySelector("parsererror");
-                if (parserError) throw new Error("Invalid XML format");
-
-                parseXML(xml);
-            } catch (error) {
-                console.error(error);
-                document.getElementById("linkGrid").innerHTML =
-                    '<div class="error">Unable to load links.xml. Run this project using a local web server.</div>';
+        function extractCategoriesFromXMLDoc(xmlDoc) {
+            const parserError = xmlDoc.querySelector("parsererror");
+            if (parserError) {
+                const errorSnippet = parserError.textContent.replace(/\s+/g, ' ').trim().slice(0, 100);
+                throw new Error("Invalid XML format: " + errorSnippet);
             }
-        }
 
-        function parseXML(xml) {
-            categories = {};
-            xml.querySelectorAll("category").forEach(category => {
-                const name = category.getAttribute("name") || "Other";
-                const color = category.getAttribute("color") || "other";
+            const categoryNodes = xmlDoc.querySelectorAll("category");
+            if (categoryNodes.length === 0) {
+                throw new Error("No <category> elements found in XML. Make sure structure matches <dashboard><category name=\"...\">...</category></dashboard>");
+            }
+
+            const result = {};
+            let totalLinks = 0;
+
+            categoryNodes.forEach(category => {
+                const name = category.getAttribute("name")?.trim() || "Other";
+                const color = category.getAttribute("color")?.trim() || "other";
 
                 const links = [];
                 category.querySelectorAll("link").forEach(link => {
@@ -414,13 +573,36 @@
                         description: link.querySelector("description")?.textContent.trim() || "",
                         url: link.querySelector("url")?.textContent.trim() || "#"
                     });
+                    totalLinks++;
                 });
 
-                categories[name] = { color, links };
+                if (result[name]) {
+                    result[name].links.push(...links);
+                } else {
+                    result[name] = { color, links };
+                }
             });
 
-            saveToLocalStorage();
-            renderDashboard();
+            return { categories: result, categoryCount: Object.keys(result).length, linkCount: totalLinks };
+        }
+
+        async function loadXML() {
+            try {
+                const response = await fetch("links.xml");
+                if (!response.ok) throw new Error("Unable to load links.xml");
+
+                const xmlText = await response.text();
+                const parser = new DOMParser();
+                const xml = parser.parseFromString(xmlText, "application/xml");
+                const parsed = extractCategoriesFromXMLDoc(xml);
+                categories = parsed.categories;
+                saveToLocalStorage();
+                renderDashboard();
+            } catch (error) {
+                console.error(error);
+                document.getElementById("linkGrid").innerHTML =
+                    '<div class="error">Unable to load links.xml. Run this project using a local web server.</div>';
+            }
         }
 
         function saveToLocalStorage() {
@@ -651,6 +833,205 @@
                 saveToLocalStorage();
                 renderDashboard();
             }
+        }
+
+        /* Upload XML Management */
+        let currentUploadedXMLString = "";
+        let stagedParsedData = null;
+        let stagedFileXMLString = "";
+        let activeUploadTab = "file";
+
+        function openUploadModal() {
+            currentUploadedXMLString = "";
+            stagedFileXMLString = "";
+            stagedParsedData = null;
+            document.getElementById("xmlFileInput").value = "";
+            document.getElementById("xmlPasteInput").value = "";
+            const badge = document.getElementById("fileSelectedBadge");
+            badge.style.display = "none";
+            badge.textContent = "";
+            const statusEl = document.getElementById("uploadStatusMsg");
+            statusEl.className = "status-msg";
+            statusEl.textContent = "";
+            statusEl.style.display = "none";
+            document.getElementById("applyImportBtn").disabled = true;
+            document.querySelector('input[name="importMode"][value="replace"]').checked = true;
+            switchUploadTab("file");
+            openModal("uploadModal");
+        }
+
+        function switchUploadTab(tab) {
+            activeUploadTab = tab;
+            const fileBtn = document.getElementById("tabUploadFileBtn");
+            const pasteBtn = document.getElementById("tabPasteXmlBtn");
+            const fileSection = document.getElementById("uploadFileSection");
+            const pasteSection = document.getElementById("uploadPasteSection");
+
+            if (tab === "file") {
+                fileBtn.classList.add("active");
+                pasteBtn.classList.remove("active");
+                fileSection.style.display = "block";
+                pasteSection.style.display = "none";
+                currentUploadedXMLString = stagedFileXMLString;
+            } else {
+                fileBtn.classList.remove("active");
+                pasteBtn.classList.add("active");
+                fileSection.style.display = "none";
+                pasteSection.style.display = "block";
+                currentUploadedXMLString = document.getElementById("xmlPasteInput").value;
+                document.getElementById("xmlPasteInput").focus();
+            }
+            validateStagedXML();
+        }
+
+        function triggerFileInput() {
+            document.getElementById("xmlFileInput").click();
+        }
+
+        function handleFileSelected(event) {
+            const files = event.target.files;
+            if (files && files.length > 0) {
+                processFile(files[0]);
+            }
+        }
+
+        function processFile(file) {
+            if (!file) return;
+            if (!file.name.toLowerCase().endsWith(".xml") && file.type && !file.type.includes("xml")) {
+                showUploadStatus("Selected file does not appear to be an XML file (.xml)", "error");
+                document.getElementById("applyImportBtn").disabled = true;
+                return;
+            }
+
+            const sizeKB = (file.size / 1024).toFixed(1);
+            const badge = document.getElementById("fileSelectedBadge");
+            badge.textContent = `📄 ${file.name} (${sizeKB} KB)`;
+            badge.style.display = "inline-flex";
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                stagedFileXMLString = e.target.result;
+                if (activeUploadTab === "file") {
+                    currentUploadedXMLString = stagedFileXMLString;
+                    validateStagedXML();
+                }
+            };
+            reader.onerror = function() {
+                showUploadStatus("Failed to read the selected file.", "error");
+                document.getElementById("applyImportBtn").disabled = true;
+            };
+            reader.readAsText(file);
+        }
+
+        function handlePasteInput() {
+            if (activeUploadTab === "paste") {
+                currentUploadedXMLString = document.getElementById("xmlPasteInput").value;
+                validateStagedXML();
+            }
+        }
+
+        function showUploadStatus(msg, type) {
+            const statusEl = document.getElementById("uploadStatusMsg");
+            statusEl.className = `status-msg ${type}`;
+            statusEl.textContent = msg;
+            statusEl.style.display = "block";
+        }
+
+        function validateStagedXML() {
+            const statusEl = document.getElementById("uploadStatusMsg");
+            const applyBtn = document.getElementById("applyImportBtn");
+
+            if (!currentUploadedXMLString || !currentUploadedXMLString.trim()) {
+                statusEl.className = "status-msg";
+                statusEl.textContent = "";
+                statusEl.style.display = "none";
+                applyBtn.disabled = true;
+                stagedParsedData = null;
+                return;
+            }
+
+            try {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(currentUploadedXMLString, "application/xml");
+                const result = extractCategoriesFromXMLDoc(xmlDoc);
+                stagedParsedData = result;
+                showUploadStatus(`✅ Valid XML: Found ${result.categoryCount} categories and ${result.linkCount} total links.`, "success");
+                applyBtn.disabled = false;
+            } catch (err) {
+                stagedParsedData = null;
+                showUploadStatus(`❌ ${err.message}`, "error");
+                applyBtn.disabled = true;
+            }
+        }
+
+        function applyUploadedXML() {
+            if (!stagedParsedData || !stagedParsedData.categories) return;
+
+            const mode = document.querySelector('input[name="importMode"]:checked')?.value || "replace";
+            const importedCats = stagedParsedData.categories;
+            const importedCategoryCount = stagedParsedData.categoryCount;
+            const importedLinkCount = stagedParsedData.linkCount;
+
+            if (mode === "replace") {
+                categories = importedCats;
+                activeCategoryName = Object.keys(categories)[0] || "";
+            } else {
+                // Merge mode
+                Object.keys(importedCats).forEach(catName => {
+                    const newCat = importedCats[catName];
+                    if (!categories[catName]) {
+                        categories[catName] = { color: newCat.color, links: [...newCat.links] };
+                    } else {
+                        const existingUrls = new Set(categories[catName].links.map(l => (l.url || "").trim().toLowerCase()));
+                        newCat.links.forEach(l => {
+                            const trimmedUrl = (l.url || "").trim().toLowerCase();
+                            if (!existingUrls.has(trimmedUrl) || trimmedUrl === "#" || trimmedUrl === "") {
+                                categories[catName].links.push(l);
+                                if (trimmedUrl && trimmedUrl !== "#") existingUrls.add(trimmedUrl);
+                            }
+                        });
+                        if (newCat.color && newCat.color !== "other") {
+                            categories[catName].color = newCat.color;
+                        }
+                    }
+                });
+                if (!activeCategoryName || !categories[activeCategoryName]) {
+                    activeCategoryName = Object.keys(categories)[0] || "";
+                }
+            }
+
+            saveToLocalStorage();
+            renderDashboard();
+            closeModal("uploadModal");
+            alert(`XML successfully imported (${mode === "replace" ? "Replaced all" : "Merged"}): ${importedCategoryCount} categories and ${importedLinkCount} links.`);
+        }
+
+        function setupDropZone() {
+            const dropZone = document.getElementById("dropZone");
+            if (!dropZone) return;
+
+            ["dragenter", "dragover"].forEach(eventName => {
+                dropZone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropZone.classList.add("dragover");
+                }, false);
+            });
+
+            ["dragleave", "drop"].forEach(eventName => {
+                dropZone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropZone.classList.remove("dragover");
+                }, false);
+            });
+
+            dropZone.addEventListener("drop", (e) => {
+                const dt = e.dataTransfer;
+                if (dt && dt.files && dt.files.length > 0) {
+                    processFile(dt.files[0]);
+                }
+            }, false);
         }
 
         /* XML Generator & Exporter */

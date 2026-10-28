@@ -16,6 +16,17 @@ python -m http.server 8000
 Then open:
 http://localhost:8000
 
+## Features
+
+- **Category & Link Management**: Add, edit, and delete categories and links directly in the browser UI.
+- **Upload / Import XML**: Easily upload an existing `links.xml` file or paste XML markup directly.
+  - **Replace Mode**: Overwrite all current categories and links.
+  - **Merge Mode**: Combine new links into existing categories without removing current entries.
+  - **Real-time Validation**: Validates XML structure and displays category and link counts before applying.
+- **Export XML**: Download an updated `links.xml` or copy the generated XML to clipboard.
+- **Local Storage Persistence**: Changes are automatically saved locally and persist across page refreshes.
+- **Reset to Default**: Instantly reset dashboard back to the base `links.xml`.
+
 ## Add a new category
 
 Add this inside <dashboard> in links.xml:
